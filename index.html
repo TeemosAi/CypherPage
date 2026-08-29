@@ -13,7 +13,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Barlow+Condensed:wght@500;600;700&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet" />
 <style>
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:#0B0B0C}
+  html,body{height:100%;margin:0;padding:0;background:#0B0B0C}
+  #dc-root,#dc-root>.sc-host{height:100%;min-height:100%}
   body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   a{color:#FF5B23;text-decoration:none}
   a:hover{color:#FF7C4E}
@@ -28,50 +29,54 @@
   @keyframes cyDrift{0%{transform:scale(1.06) translate3d(0,0,0)}100%{transform:scale(1.16) translate3d(0,-2%,0)}}
 </style>
 </helmet>
-<div style="background:#0B0B0C; color:#F0E6D2; font-family:'Barlow',system-ui,sans-serif; overflow-x:hidden">
+<div style="min-height:100%; background:#0B0B0C; color:#F0E6D2; font-family:'Barlow',system-ui,sans-serif; overflow-x:hidden">
 
-  <section style="position:relative; min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:min(clamp(14px,4vw,20px),2vh); padding:min(clamp(40px,11vw,56px),4vh) clamp(20px,6vw,40px) min(clamp(44px,11vw,56px),4vh); overflow:hidden; text-align:center">
+  <section style="position:relative; height:100svh; min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:clamp(28px,5vh,52px) clamp(20px,6vw,40px) clamp(24px,4vh,44px); overflow:hidden; text-align:center">
     <div style="position:absolute; inset:0; background-image:url('hero-cypher.jpg'); background-size:cover; background-position:50% 42%; animation:cyDrift 26s ease-in-out infinite alternate"></div>
     <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(11,11,12,.6) 0%, rgba(11,11,12,.26) 34%, rgba(11,11,12,.58) 74%, rgba(11,11,12,.92) 100%)"></div>
     <div style="position:absolute; inset:0; background:radial-gradient(78% 52% at 50% 52%, rgba(11,11,12,0) 0%, rgba(11,11,12,.6) 100%)"></div>
     <div style="position:absolute; inset:0; background:radial-gradient(105% 52% at 50% 106%, rgba(255,91,35,.26) 0%, rgba(255,91,35,0) 60%)"></div>
     <div style="position:absolute; inset:0; background:radial-gradient(60% 40% at 50% 38%, rgba(255,168,120,.12) 0%, rgba(255,168,120,0) 70%)"></div>
 
-    <div style="position:relative; display:flex; align-items:center; gap:14px; animation:cyFade .8s ease both">
-      <a href="https://www.instagram.com/palmspringsdanceacademy" target="_blank" rel="noopener noreferrer" style="display:flex; flex-direction:column; align-items:center; gap:7px; width:96px; color:inherit" style-hover="opacity:.78">
-        <img src="logo-psda-tight.png" alt="Palm Springs Dance Academy" style="width:58px; height:58px; border-radius:50%; object-fit:cover; background:#2E2B2A; box-shadow:0 6px 20px rgba(0,0,0,.45)" />
-        <span style="font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:rgba(240,230,210,.62); line-height:1.25">Palm Springs Dance Academy</span>
-      </a>
-      <span style="font-family:'Barlow Condensed',sans-serif; font-size:15px; color:rgba(240,230,210,.4); margin-bottom:22px">×</span>
-      <a href="https://www.instagram.com/desert.peeps" target="_blank" rel="noopener noreferrer" style="display:flex; flex-direction:column; align-items:center; gap:7px; width:96px; color:inherit" style-hover="opacity:.78">
-        <img src="logo-desert-peeps.jpg" alt="Desert Peeps" style="width:58px; height:58px; border-radius:50%; object-fit:contain; background:#0B0B0C; border:1px solid rgba(240,230,210,.18); box-shadow:0 6px 20px rgba(0,0,0,.45)" />
-        <span style="font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:rgba(240,230,210,.62); line-height:1.25">Desert Peeps</span>
-      </a>
-    </div>
-
-    <sc-if value="{{ showCount }}" hint-placeholder-val="{{ false }}">
-      <div style="position:relative; display:inline-flex; align-items:center; gap:9px; padding:8px 16px; border:1px solid rgba(255,91,35,.45); border-radius:999px; background:rgba(255,91,35,.08); font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#FFD3C0">
-        <span style="width:7px; height:7px; border-radius:50%; background:#FF5B23; animation:cyPulse 2s ease-in-out infinite"></span>
-        <span>{{ countLabel }}</span>
+    <div style="position:relative; flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:space-evenly; width:100%; max-width:560px; gap:clamp(18px,3.5vh,42px)">
+      <div style="display:flex; align-items:center; gap:clamp(16px,4vw,28px); animation:cyFade .8s ease both">
+        <a href="https://www.instagram.com/palmspringsdanceacademy" target="_blank" rel="noopener noreferrer" style="display:flex; flex-direction:column; align-items:center; gap:clamp(8px,1.4vh,12px); width:clamp(96px,22vw,120px); color:inherit" style-hover="opacity:.78">
+          <img src="logo-psda-tight.png" alt="Palm Springs Dance Academy" style="width:clamp(58px,10vh,76px); height:clamp(58px,10vh,76px); border-radius:50%; object-fit:cover; background:#2E2B2A; box-shadow:0 6px 20px rgba(0,0,0,.45)" />
+          <span style="font-family:'Barlow Condensed',sans-serif; font-size:clamp(10px,1.6vh,12px); font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:rgba(240,230,210,.62); line-height:1.25">Palm Springs Dance Academy</span>
+        </a>
+        <span style="font-family:'Barlow Condensed',sans-serif; font-size:clamp(15px,2.4vh,20px); color:rgba(240,230,210,.4); margin-bottom:clamp(18px,3vh,28px)">×</span>
+        <a href="https://www.instagram.com/desert.peeps" target="_blank" rel="noopener noreferrer" style="display:flex; flex-direction:column; align-items:center; gap:clamp(8px,1.4vh,12px); width:clamp(96px,22vw,120px); color:inherit" style-hover="opacity:.78">
+          <img src="logo-desert-peeps.jpg" alt="Desert Peeps" style="width:clamp(58px,10vh,76px); height:clamp(58px,10vh,76px); border-radius:50%; object-fit:contain; background:#0B0B0C; border:1px solid rgba(240,230,210,.18); box-shadow:0 6px 20px rgba(0,0,0,.45)" />
+          <span style="font-family:'Barlow Condensed',sans-serif; font-size:clamp(10px,1.6vh,12px); font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:rgba(240,230,210,.62); line-height:1.25">Desert Peeps</span>
+        </a>
       </div>
-    </sc-if>
 
-    <div style="position:relative; animation:cyRise .8s ease both">
-      <h1 style="margin:0; font-family:'Anton',sans-serif; font-weight:400; font-size:min(clamp(52px,15vw,104px),11vh); line-height:.88; letter-spacing:-.015em; text-transform:uppercase; color:#FFF8EC; text-shadow:0 4px 18px rgba(0,0,0,.75), 0 18px 60px rgba(0,0,0,.6)">Come try the <span style="color:#FF8348; text-shadow:0 0 34px rgba(255,91,35,.55), 0 4px 18px rgba(0,0,0,.6)">Cypher</span></h1>
-      <p style="margin:min(clamp(14px,4vw,22px),2vh) auto 0; max-width:30ch; font-size:min(clamp(17px,4.4vw,21px),3.6vh); line-height:1.45; color:#F4EADB; text-shadow:0 2px 14px rgba(0,0,0,.7); text-wrap:pretty">We practice at the studio. Come show off your moves, or come learn something new.</p>
-      <p style="margin:min(12px,1.6vh) auto 0; max-width:38ch; font-size:min(clamp(14px,3.7vw,16px),2.8vh); line-height:1.5; color:rgba(240,230,210,.62); text-shadow:0 2px 12px rgba(0,0,0,.7); text-wrap:pretty">A cypher is an open circle. One dancer goes at a time, everybody else hypes them up. No routine, no audition.</p>
+      <sc-if value="{{ showCount }}" hint-placeholder-val="{{ false }}">
+        <div style="display:inline-flex; align-items:center; gap:9px; padding:8px 16px; border:1px solid rgba(255,91,35,.45); border-radius:999px; background:rgba(255,91,35,.08); font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#FFD3C0">
+          <span style="width:7px; height:7px; border-radius:50%; background:#FF5B23; animation:cyPulse 2s ease-in-out infinite"></span>
+          <span>{{ countLabel }}</span>
+        </div>
+      </sc-if>
+
+      <div style="animation:cyRise .8s ease both">
+        <h1 style="margin:0; font-family:'Anton',sans-serif; font-weight:400; font-size:min(clamp(52px,15vw,104px),12vh); line-height:.88; letter-spacing:-.015em; text-transform:uppercase; color:#FFF8EC; text-shadow:0 4px 18px rgba(0,0,0,.75), 0 18px 60px rgba(0,0,0,.6)">Come try the <span style="color:#FF8348; text-shadow:0 0 34px rgba(255,91,35,.55), 0 4px 18px rgba(0,0,0,.6)">Cypher</span></h1>
+        <p style="margin:clamp(16px,3vh,28px) auto 0; max-width:30ch; font-size:min(clamp(17px,4.4vw,21px),3.8vh); line-height:1.5; color:#F4EADB; text-shadow:0 2px 14px rgba(0,0,0,.7); text-wrap:pretty">We practice at the studio. Come show off your moves, or come learn something new.</p>
+        <p style="margin:clamp(12px,2vh,20px) auto 0; max-width:38ch; font-size:min(clamp(14px,3.7vw,16px),3vh); line-height:1.55; color:rgba(240,230,210,.62); text-shadow:0 2px 12px rgba(0,0,0,.7); text-wrap:pretty">A cypher is an open circle. One dancer goes at a time, everybody else hypes them up. No routine, no audition.</p>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px">
+        <span style="display:inline-flex; align-items:center; border:1px solid rgba(240,230,210,.28); color:rgba(240,230,210,.8); padding:7px 14px; border-radius:2px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Starts Fri Sept 18</span>
+        <span style="display:inline-flex; align-items:center; background:#FF5B23; color:#0B0B0C; padding:7px 14px; border-radius:2px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Free</span>
+      </div>
     </div>
 
-    <div style="position:relative; display:flex; flex-wrap:wrap; justify-content:center; gap:8px">
-      <span style="display:inline-flex; align-items:center; border:1px solid rgba(240,230,210,.28); color:rgba(240,230,210,.8); padding:7px 14px; border-radius:2px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Starts Fri Sept 18</span>
-      <span style="display:inline-flex; align-items:center; background:#FF5B23; color:#0B0B0C; padding:7px 14px; border-radius:2px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Free</span>
-    </div>
+    <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:clamp(14px,2.5vh,22px); width:100%; max-width:440px; flex:0 0 auto">
+      <button type="button" onClick="{{ openForm }}" style="width:100%; min-height:66px; padding:0 34px; background:linear-gradient(180deg,#FFB273 0%,#FF7C4E 42%,#FF4A0F 100%); color:#0B0B0C; border:none; border-radius:999px; font-family:'Anton',sans-serif; font-size:22px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; animation:cyGlow 2.8s ease-in-out infinite; transition:transform .18s cubic-bezier(.22,1,.36,1), filter .18s ease" style-hover="filter:brightness(1.06); transform:scale(1.03)" style-active="transform:scale(.985)">Count me in</button>
 
-    <button type="button" onClick="{{ openForm }}" style="position:relative; width:100%; max-width:440px; min-height:66px; padding:0 34px; background:linear-gradient(180deg,#FFB273 0%,#FF7C4E 42%,#FF4A0F 100%); color:#0B0B0C; border:none; border-radius:999px; font-family:'Anton',sans-serif; font-size:22px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; animation:cyGlow 2.8s ease-in-out infinite; transition:transform .18s cubic-bezier(.22,1,.36,1), filter .18s ease" style-hover="filter:brightness(1.06); transform:scale(1.03)" style-active="transform:scale(.985)">Count me in</button>
-
-    <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:rgba(240,230,210,.42); text-align:center; line-height:1.4">
-      <span>Sun Center · 611 S Palm Canyon Dr Ste 11, Palm Springs, CA 92264</span>
-      <span>Questions? <a href="tel:+17609926075" style="color:#FF8348; letter-spacing:.1em">(760) 992-6075</a></span>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:5px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:rgba(240,230,210,.42); text-align:center; line-height:1.4">
+        <span>Sun Center · 611 S Palm Canyon Dr Ste 11, Palm Springs, CA 92264</span>
+        <span>Questions? <a href="tel:+17609926075" style="color:#FF8348; letter-spacing:.1em">(760) 992-6075</a></span>
+      </div>
     </div>
   </section>
 
