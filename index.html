@@ -66,6 +66,7 @@
 
       <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px">
         <span style="display:inline-flex; align-items:center; border:1px solid rgba(240,230,210,.28); color:rgba(240,230,210,.8); padding:7px 14px; border-radius:2px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Starts Fri Sept 18</span>
+        <span style="display:inline-flex; align-items:center; border:1px solid rgba(240,230,210,.28); color:rgba(240,230,210,.8); padding:7px 14px; border-radius:2px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Starts at 7pm</span>
         <span style="display:inline-flex; align-items:center; background:#FF5B23; color:#0B0B0C; padding:7px 14px; border-radius:2px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Free</span>
       </div>
     </div>
@@ -131,33 +132,6 @@
                 </sc-if>
               </div>
 
-              <div style="display:flex; flex-direction:column; gap:10px">
-                <span style="font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:rgba(240,230,210,.52)">Which day works better?</span>
-                <div style="display:flex; gap:9px">
-                  <sc-for list="{{ dayOpts }}" as="opt" hint-placeholder-count="2">
-                    <button type="button" onClick="{{ opt.onClick }}" style="{{ opt.style }}">{{ opt.label }}</button>
-                  </sc-for>
-                </div>
-                <sc-if value="{{ errDay }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-size:14px; color:#FF7C4E">{{ errDay }}</span>
-                </sc-if>
-              </div>
-
-              <div style="display:flex; flex-direction:column; gap:10px">
-                <span style="font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:rgba(240,230,210,.52)">Which time works better?</span>
-                <div style="display:flex; gap:9px">
-                  <sc-for list="{{ timeOpts }}" as="opt" hint-placeholder-count="3">
-                    <button type="button" onClick="{{ opt.onClick }}" style="{{ opt.style }}">
-                      <span>{{ opt.label }}</span>
-                      <span style="{{ opt.subStyle }}">{{ opt.sub }}</span>
-                    </button>
-                  </sc-for>
-                </div>
-                <sc-if value="{{ errTime }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-size:14px; color:#FF7C4E">{{ errTime }}</span>
-                </sc-if>
-              </div>
-
               <div style="display:flex; flex-direction:column; gap:8px">
                 <label style="display:flex; align-items:flex-start; gap:12px; padding:13px; border:1px solid rgba(240,230,210,.16); border-radius:4px; background:rgba(255,255,255,.03); cursor:pointer">
                   <input type="checkbox" checked="{{ optIn }}" onChange="{{ onOptIn }}" style="width:22px; height:22px; margin:1px 0 0; accent-color:#FF5B23; flex:0 0 auto" />
@@ -183,7 +157,7 @@
 const CYPHER_WEBHOOK_URL = 'https://n8n-jhurb509dci6d5c3cpkmwj2s.178.104.189.34.sslip.io/webhook/cypher-signup';
 
 class Component extends DCLogic {
-  state = { name: '', email: '', age: '', day: '', time: '', optIn: false, errors: {}, submitted: false, submitting: false, count: null, modalOpen: false };
+  state = { name: '', email: '', age: '', optIn: false, errors: {}, submitted: false, submitting: false, count: null, modalOpen: false };
 
   componentDidMount() {
     const start = this.props.startingCount ?? 0;
@@ -207,11 +181,11 @@ class Component extends DCLogic {
     return () => this.setState(s => ({ [key]: val, errors: Object.assign({}, s.errors, { [key]: null }) }));
   }
 
-  chipStyle(active, stacked) {
+  chipStyle(active) {
     return {
       flex: '1 1 0', minWidth: 0, minHeight: '56px',
-      display: 'flex', flexDirection: stacked ? 'column' : 'row',
-      alignItems: 'center', justifyContent: 'center', gap: stacked ? '2px' : '0',
+      display: 'flex', flexDirection: 'row',
+      alignItems: 'center', justifyContent: 'center',
       padding: '10px 6px', cursor: 'pointer', borderRadius: '4px',
       fontFamily: "'Barlow Condensed',sans-serif", fontSize: '17px', fontWeight: 700,
       letterSpacing: '.08em', textTransform: 'uppercase',
@@ -222,13 +196,6 @@ class Component extends DCLogic {
     };
   }
 
-  subStyle(active) {
-    return {
-      fontSize: '12px', fontWeight: 600, letterSpacing: '.04em',
-      color: active ? 'rgba(11,11,12,.7)' : 'rgba(240,230,210,.5)'
-    };
-  }
-
   validate() {
     const s = this.state;
     const errors = {};
@@ -236,8 +203,6 @@ class Component extends DCLogic {
     if (!s.email.trim()) errors.email = 'Please add your email.';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s.email.trim())) errors.email = "That email doesn't look right.";
     if (!s.age) errors.age = 'Pick an age range.';
-    if (!s.day) errors.day = 'Pick a day.';
-    if (!s.time) errors.time = 'Pick a time.';
     if ((this.props.requireOptIn ?? true) && !s.optIn) errors.optIn = 'Please check the box so we can email you.';
     return errors;
   }
@@ -251,7 +216,7 @@ class Component extends DCLogic {
     fetch(CYPHER_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: s.name, email: s.email, age: s.age, day: s.day, time: s.time, optIn: s.optIn })
+      body: JSON.stringify({ name: s.name, email: s.email, age: s.age, time: '7pm', optIn: s.optIn })
     })
       .then((res) => res.json())
       .then((data) => {
@@ -268,12 +233,6 @@ class Component extends DCLogic {
     const s = this.state;
     const threshold = this.props.counterThreshold ?? 10;
     const ages = ['5–8', '9–12', '13+'];
-    const days = ['Friday', 'Saturday'];
-    const times = [
-      { key: 'early', label: 'Early', sub: '4–5:30' },
-      { key: 'mid', label: 'Mid', sub: '5:30–7' },
-      { key: 'late', label: 'Late', sub: '7–9' }
-    ];
     return {
       name: s.name, email: s.email, optIn: s.optIn, modalOpen: s.modalOpen,
       openForm: () => this.setState({ modalOpen: true }),
@@ -282,19 +241,10 @@ class Component extends DCLogic {
       onEmail: this.setField('email'),
       onOptIn: (e) => { const v = e.target.checked; this.setState(st => ({ optIn: v, errors: Object.assign({}, st.errors, { optIn: null }) })); },
       onSubmit: this.onSubmit,
-      ageOpts: ages.map(a => ({ label: a, style: this.chipStyle(s.age === a, false), onClick: this.pick('age', a) })),
-      dayOpts: days.map(d => ({ label: d, style: this.chipStyle(s.day === d, false), onClick: this.pick('day', d) })),
-      timeOpts: times.map(t => ({
-        label: t.label, sub: t.sub,
-        style: this.chipStyle(s.time === t.key, true),
-        subStyle: this.subStyle(s.time === t.key),
-        onClick: this.pick('time', t.key)
-      })),
+      ageOpts: ages.map(a => ({ label: a, style: this.chipStyle(s.age === a), onClick: this.pick('age', a) })),
       errName: s.errors.name || false,
       errEmail: s.errors.email || false,
       errAge: s.errors.age || false,
-      errDay: s.errors.day || false,
-      errTime: s.errors.time || false,
       errOptIn: s.errors.optIn || false,
       showForm: !s.submitted,
       showThanks: s.submitted,
