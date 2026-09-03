@@ -144,14 +144,14 @@
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:900},&quot;counterThreshold&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:100,&quot;section&quot;:&quot;Signups&quot;},&quot;startingCount&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:500,&quot;section&quot;:&quot;Signups&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:900},&quot;counterThreshold&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:100,&quot;section&quot;:&quot;Signups&quot;},&quot;startingCount&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:500,&quot;section&quot;:&quot;Signups&quot;}}">
 const CYPHER_WEBHOOK_URL = 'https://n8n-jhurb509dci6d5c3cpkmwj2s.178.104.189.34.sslip.io/webhook/cypher-signup';
 
 class Component extends DCLogic {
   state = { name: '', email: '', age: '', errors: {}, submitted: false, submitting: false, count: null, modalOpen: false };
 
   componentDidMount() {
-    const start = this.props.startingCount ?? 0;
+    const start = Math.max(this.props.startingCount ?? 3, 3);
     this.setState({ count: start });
     this._onKey = (e) => { if (e.key === 'Escape') this.setState({ modalOpen: false }); };
     document.addEventListener('keydown', this._onKey);
@@ -191,7 +191,8 @@ class Component extends DCLogic {
     })
       .then((res) => res.json())
       .then((data) => {
-        const next = (data && Number.isFinite(data.count)) ? data.count : (this.state.count ?? 0) + 1;
+        const raw = (data && Number.isFinite(data.count)) ? data.count : (this.state.count ?? 3) + 1;
+        const next = Math.max(raw, 3);
         this.setState({ submitted: true, submitting: false, errors: {}, count: next });
       })
       .catch(() => {
@@ -202,8 +203,8 @@ class Component extends DCLogic {
 
   renderVals() {
     const s = this.state;
-    const threshold = this.props.counterThreshold ?? 1;
-    const n = s.count || 0;
+    const threshold = this.props.counterThreshold ?? 3;
+    const displayCount = Math.max(s.count || 0, 3);
     const ages = [];
     for (let a = 7; a <= 12; a++) ages.push({ value: String(a), label: String(a) });
     ages.push({ value: '13+', label: '13+' });
@@ -226,7 +227,7 @@ class Component extends DCLogic {
       submitLabel: s.submitting ? 'Counting you in…' : 'Count me in',
       submitOpacity: s.submitting ? 0.7 : 1,
       showCount: s.count != null && s.count >= threshold,
-      countLabel: 'Fri Oct 2 · ' + n + ' dancers signed up'
+      countLabel: 'Fri Oct 2 · ' + displayCount + ' dancers signed up'
     };
   }
 }
