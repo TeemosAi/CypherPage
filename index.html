@@ -18,9 +18,11 @@
   body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   a{color:#FF5B23;text-decoration:none}
   a:hover{color:#FF7C4E}
-  input{font-family:inherit}
-  input:focus{outline:2px solid #FF5B23;outline-offset:2px}
+  input,select{font-family:inherit}
+  input:focus,select:focus{outline:2px solid #FF5B23;outline-offset:2px}
   ::placeholder{color:rgba(240,230,210,.34)}
+  select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23F0E6D2' d='M1.4 1.4L6 6l4.6-4.6L12 2.8 6 8.8 0 2.8z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:44px;cursor:pointer}
+  select option{background:#121213;color:#F0E6D2}
   @keyframes cyRise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
   @keyframes cyFade{from{opacity:0}to{opacity:1}}
   @keyframes cyPop{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
@@ -119,13 +121,13 @@
                 </sc-if>
               </div>
 
-              <div style="display:flex; flex-direction:column; gap:10px">
-                <span style="font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:rgba(240,230,210,.52)">Kid's age</span>
-                <div style="display:flex; gap:9px">
-                  <sc-for list="{{ ageOpts }}" as="opt" hint-placeholder-count="3">
-                    <button type="button" onClick="{{ opt.onClick }}" style="{{ opt.style }}">{{ opt.label }}</button>
+              <div style="display:flex; flex-direction:column; gap:8px">
+                <select id="age" value="{{ age }}" onChange="{{ onAge }}" aria-label="Kid's age" style="width:100%; min-height:56px; padding:0 16px; font-size:16px; color:{{ ageColor }}; background:rgba(255,255,255,.05); border:1px solid rgba(240,230,210,.16); border-radius:12px">
+                  <option value="" disabled>Kid's age</option>
+                  <sc-for list="{{ ageOpts }}" as="opt" hint-placeholder-count="12">
+                    <option value="{{ opt.value }}">{{ opt.label }}</option>
                   </sc-for>
-                </div>
+                </select>
                 <sc-if value="{{ errAge }}" hint-placeholder-val="{{ false }}">
                   <span style="font-size:14px; color:#FF7C4E">{{ errAge }}</span>
                 </sc-if>
@@ -166,32 +168,13 @@ class Component extends DCLogic {
     };
   }
 
-  pick(key, val) {
-    return () => this.setState(s => ({ [key]: val, errors: Object.assign({}, s.errors, { [key]: null }) }));
-  }
-
-  chipStyle(active) {
-    return {
-      flex: '1 1 0', minWidth: 0, minHeight: '56px',
-      display: 'flex', flexDirection: 'row',
-      alignItems: 'center', justifyContent: 'center',
-      padding: '10px 6px', cursor: 'pointer', borderRadius: '12px',
-      fontFamily: "'Barlow Condensed',sans-serif", fontSize: '17px', fontWeight: 700,
-      letterSpacing: '.08em', textTransform: 'uppercase',
-      border: active ? '1px solid #FF5B23' : '1px solid rgba(240,230,210,.16)',
-      background: active ? '#FF5B23' : 'rgba(255,255,255,.05)',
-      color: active ? '#0B0B0C' : '#F0E6D2',
-      transition: 'background .15s ease, color .15s ease, border-color .15s ease'
-    };
-  }
-
   validate() {
     const s = this.state;
     const errors = {};
     if (!s.name.trim()) errors.name = 'Please add your name.';
     if (!s.email.trim()) errors.email = 'Please add your email.';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s.email.trim())) errors.email = "That email doesn't look right.";
-    if (!s.age) errors.age = 'Pick an age range.';
+    if (!s.age) errors.age = 'Pick an age.';
     return errors;
   }
 
@@ -221,15 +204,19 @@ class Component extends DCLogic {
     const s = this.state;
     const threshold = this.props.counterThreshold ?? 1;
     const n = s.count || 0;
-    const ages = ['5–8', '9–12', '13+'];
+    const ages = [];
+    for (let a = 7; a <= 12; a++) ages.push({ value: String(a), label: String(a) });
+    ages.push({ value: '13+', label: '13+' });
     return {
-      name: s.name, email: s.email, modalOpen: s.modalOpen,
+      name: s.name, email: s.email, age: s.age, modalOpen: s.modalOpen,
+      ageColor: s.age ? '#F0E6D2' : 'rgba(240,230,210,.34)',
       openForm: () => this.setState({ modalOpen: true }),
       closeForm: () => this.setState({ modalOpen: false }),
       onName: this.setField('name'),
       onEmail: this.setField('email'),
+      onAge: this.setField('age'),
       onSubmit: this.onSubmit,
-      ageOpts: ages.map(a => ({ label: a, style: this.chipStyle(s.age === a), onClick: this.pick('age', a) })),
+      ageOpts: ages,
       errName: s.errors.name || false,
       errEmail: s.errors.email || false,
       errAge: s.errors.age || false,
