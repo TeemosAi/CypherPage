@@ -1,0 +1,27 @@
+---
+description: Copy-first conversion psychology for this website. Always on for this project.
+alwaysApply: true
+---
+
+# Website conversion (always on)
+
+This project is a website. Follow the website-conversion skill on every change.
+
+Read and obey:
+- `~/.cursor/skills/website-conversion/SKILL.md`
+- `~/.cursor/skills/website-conversion/reference.md`
+- `~/.cursor/skills/website-conversion/build-mistakes.md`
+
+## Blindspot pass (mandatory)
+
+On every site-related turn, catch conversion holes the user will not see. Score Desire / Certainty / Trust. Name the lowest. List 3–5 leaks. Say the one fix first.
+
+## Non-negotiable
+
+1. Copy first. Design second. No HTML/CSS/components until section copy is confirmed.
+2. Never skip or reorder the 5 levels: WWP → Copy → Wireframe → Design → Build.
+3. One action per page. Every element must move Desire, Certainty, or Trust.
+4. Service landing section order is locked unless the page is a shorter one-action event/RSVP page — then keep only what is needed to say yes.
+5. One CTA color. Real photos only. Mobile-first. CTA above the fold on mobile.
+
+Does not cover outreach, sales, or cold email.
