@@ -155,8 +155,10 @@
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:900},&quot;counterThreshold&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:100,&quot;section&quot;:&quot;Signups&quot;},&quot;startingCount&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:500,&quot;section&quot;:&quot;Signups&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:900},&quot;counterThreshold&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:100,&quot;section&quot;:&quot;Signups&quot;},&quot;startingCount&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:11,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:500,&quot;section&quot;:&quot;Signups&quot;}}">
 const CYPHER_WEBHOOK_URL = 'https://n8n-jhurb509dci6d5c3cpkmwj2s.178.104.189.34.sslip.io/webhook/cypher-signup?token=cypher-oct2-psda-2026';
+const CYPHER_SHEET_ID = '1TOJ1EGnwB9ubvatEkMAQXZFVTyc0EMsHKF6V-Pjzi8o';
+const CYPHER_SHEET_COUNT_URL = 'https://docs.google.com/spreadsheets/d/' + CYPHER_SHEET_ID + '/gviz/tq?tqx=out:json&headers=1&tq=' + encodeURIComponent('select count(A)');
 
 function clarityEvent(name) {
   try {
@@ -170,12 +172,67 @@ function clarityUpgrade(reason) {
   } catch (e) {}
 }
 
+function parseCount(payload) {
+  if (payload == null || payload === false) return null;
+  if (typeof payload === 'number') return Number.isFinite(payload) ? Math.max(0, Math.floor(payload)) : null;
+  if (typeof payload === 'string') {
+    const trimmed = payload.trim();
+    const gviz = trimmed.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)\s*;?\s*$/);
+    if (gviz) {
+      try { return parseCount(JSON.parse(gviz[1])); } catch (e) {}
+    }
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try { return parseCount(JSON.parse(trimmed)); } catch (e) {}
+    }
+    const n = Number(trimmed);
+    return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : null;
+  }
+  if (Array.isArray(payload)) {
+    if (!payload.length) return 0;
+    const nested = payload.map(parseCount).filter((n) => n != null);
+    if (nested.length === 1 && payload.length === 1) return nested[0];
+    return payload.length;
+  }
+  if (typeof payload === 'object') {
+    const cell = payload.table && payload.table.rows && payload.table.rows[0] && payload.table.rows[0].c && payload.table.rows[0].c[0];
+    if (cell && Number.isFinite(cell.v)) return Math.max(0, Math.floor(cell.v));
+    const keys = ['count', 'total', 'signups', 'rows', 'rowCount'];
+    for (let i = 0; i < keys.length; i++) {
+      const n = parseCount(payload[keys[i]]);
+      if (n != null) return n;
+    }
+    if (payload.data != null) return parseCount(payload.data);
+  }
+  return null;
+}
+
 class Component extends DCLogic {
   state = { name: '', email: '', age: '', errors: {}, submitted: false, submitting: false, count: null, modalOpen: false };
 
+  setCount(n) {
+    if (n == null || !Number.isFinite(n)) return;
+    this.setState({ count: n });
+  }
+
+  loadSignupCount() {
+    const read = (url) => fetch(url, { method: 'GET', cache: 'no-store' })
+      .then((res) => res.text())
+      .then((text) => parseCount(text));
+    return Promise.allSettled([read(CYPHER_SHEET_COUNT_URL), read(CYPHER_WEBHOOK_URL)])
+      .then((results) => {
+        for (let i = 0; i < results.length; i++) {
+          if (results[i].status === 'fulfilled' && results[i].value != null) {
+            this.setCount(results[i].value);
+            return;
+          }
+        }
+      });
+  }
+
   componentDidMount() {
-    const start = Math.max(this.props.startingCount ?? 3, 3);
+    const start = this.props.startingCount ?? 11;
     this.setState({ count: start });
+    this.loadSignupCount();
     this._onKey = (e) => { if (e.key === 'Escape') this.setState({ modalOpen: false }); };
     document.addEventListener('keydown', this._onKey);
   }
@@ -213,15 +270,14 @@ class Component extends DCLogic {
     })
       .then((res) => res.json())
       .then((data) => {
-        const raw = (data && Number.isFinite(data.count)) ? data.count : (this.state.count ?? 3) + 1;
-        const next = Math.max(raw, 3);
+        const parsed = parseCount(data);
+        const next = parsed != null ? parsed : (this.state.count ?? 11) + 1;
         this.setState({ submitted: true, submitting: false, errors: {}, count: next });
         clarityEvent('signup_success');
         clarityUpgrade('rsvp-submitted');
       })
       .catch(() => {
-        // Still confirm to the user even if the count refresh failed to fetch back
-        this.setState({ submitted: true, submitting: false, errors: {} });
+        this.setState({ submitted: true, submitting: false, errors: {}, count: (this.state.count ?? 11) + 1 });
         clarityEvent('signup_success');
         clarityUpgrade('rsvp-submitted');
       });
@@ -229,8 +285,8 @@ class Component extends DCLogic {
 
   renderVals() {
     const s = this.state;
-    const threshold = this.props.counterThreshold ?? 3;
-    const displayCount = Math.max(s.count || 0, 3);
+    const threshold = this.props.counterThreshold ?? 1;
+    const displayCount = s.count || 0;
     const ages = [];
     for (let a = 7; a <= 12; a++) ages.push({ value: String(a), label: String(a) });
     ages.push({ value: '13+', label: '13+' });
