@@ -20,37 +20,75 @@
 <script type="module" src="./clarity.js"></script>
 <script>
 (function () {
+  var unlockBound = false;
+  function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  function allVideos() {
+    return document.querySelectorAll('video.hero-video');
+  }
   function playSafe(v) {
+    if (!v || prefersReducedMotion()) return;
+    try {
+      v.muted = true;
+      v.defaultMuted = true;
+      v.volume = 0;
+    } catch (e) {}
     var p = v.play();
     if (p && typeof p.catch === 'function') p.catch(function () {});
+  }
+  function playAll() {
+    var nodes = allVideos();
+    for (var i = 0; i < nodes.length; i++) playSafe(nodes[i]);
+  }
+  function bindUnlock() {
+    if (unlockBound) return;
+    unlockBound = true;
+    function onGesture() { playAll(); }
+    ['touchstart', 'touchend', 'pointerdown', 'click'].forEach(function (evt) {
+      document.addEventListener(evt, onGesture, { passive: true });
+    });
   }
   function wire(v) {
     if (!v || v.dataset.loopWired === '1') return;
     v.dataset.loopWired = '1';
     v.muted = true;
     v.defaultMuted = true;
+    v.volume = 0;
     v.loop = true;
     v.playsInline = true;
+    v.setAttribute('muted', '');
+    v.setAttribute('autoplay', '');
     v.setAttribute('playsinline', '');
     v.setAttribute('webkit-playsinline', '');
+    v.setAttribute('x5-playsinline', '');
+    v.removeAttribute('controls');
     v.addEventListener('ended', function () {
       try { v.currentTime = 0; } catch (e) {}
       playSafe(v);
     });
+    ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough'].forEach(function (evt) {
+      v.addEventListener(evt, function () { playSafe(v); });
+    });
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden) playSafe(v);
     });
+    bindUnlock();
+    try { v.load(); } catch (e) {}
     playSafe(v);
+    setTimeout(function () { playSafe(v); }, 300);
+    setTimeout(function () { playSafe(v); }, 1200);
+    setTimeout(function () { playSafe(v); }, 3000);
   }
   function scan() {
-    var nodes = document.querySelectorAll('video.hero-video');
+    var nodes = allVideos();
     for (var i = 0; i < nodes.length; i++) wire(nodes[i]);
   }
   scan();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan);
-  var root = document.documentElement;
+  window.addEventListener('pageshow', function () { scan(); playAll(); });
   if (window.MutationObserver) {
-    new MutationObserver(scan).observe(root, { childList: true, subtree: true });
+    new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
   } else {
     setTimeout(scan, 500);
     setTimeout(scan, 1500);
@@ -82,14 +120,14 @@
   @keyframes cyPulse{0%,100%{opacity:.45}50%{opacity:1}}
   @keyframes cyDrift{0%{transform:scale(1.06) translate3d(0,0,0)}100%{transform:scale(1.16) translate3d(0,-2%,0)}}
   .hero-media{position:absolute;inset:0;overflow:hidden;background:#0B0B0C}
-  .hero-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 42%;animation:cyDrift 26s ease-in-out infinite alternate}
-  .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 38%;pointer-events:none}
+  .hero-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;animation:cyDrift 26s ease-in-out infinite alternate}
+  .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;pointer-events:none}
   @media (min-width:768px){
-    .hero-fallback{object-position:50% 36%}
-    .hero-video{object-position:50% 32%}
+    .hero-fallback{object-position:50% 22%}
+    .hero-video{object-position:50% 22%}
   }
   @media (min-width:1100px){
-    .hero-fallback,.hero-video{object-position:50% 28%}
+    .hero-fallback,.hero-video{object-position:50% 16%}
   }
   @media (prefers-reduced-motion:reduce){
     .hero-fallback{animation:none}
@@ -102,7 +140,7 @@
   <section style="position:relative; height:100svh; min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:clamp(28px,5vh,52px) clamp(20px,6vw,40px) clamp(24px,4vh,44px); overflow:hidden; text-align:center">
     <div class="hero-media" aria-hidden="true">
       <img class="hero-fallback" src="hero-cypher.jpg" alt="" decoding="async" />
-      <video class="hero-video" id="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="hero-cypher.jpg">
+      <video class="hero-video" id="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="hero-cypher.jpg" disablepictureinpicture disableremoteplayback>
         <source src="hero-cypher.mp4" type="video/mp4" />
       </video>
     </div>
