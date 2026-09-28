@@ -18,6 +18,45 @@
   })(window, document, 'clarity', 'script', window.CLARITY_PROJECT_ID);
 </script>
 <script type="module" src="./clarity.js"></script>
+<script>
+(function () {
+  function playSafe(v) {
+    var p = v.play();
+    if (p && typeof p.catch === 'function') p.catch(function () {});
+  }
+  function wire(v) {
+    if (!v || v.dataset.loopWired === '1') return;
+    v.dataset.loopWired = '1';
+    v.muted = true;
+    v.defaultMuted = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.setAttribute('playsinline', '');
+    v.setAttribute('webkit-playsinline', '');
+    v.addEventListener('ended', function () {
+      try { v.currentTime = 0; } catch (e) {}
+      playSafe(v);
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) playSafe(v);
+    });
+    playSafe(v);
+  }
+  function scan() {
+    var nodes = document.querySelectorAll('video.hero-video');
+    for (var i = 0; i < nodes.length; i++) wire(nodes[i]);
+  }
+  scan();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan);
+  var root = document.documentElement;
+  if (window.MutationObserver) {
+    new MutationObserver(scan).observe(root, { childList: true, subtree: true });
+  } else {
+    setTimeout(scan, 500);
+    setTimeout(scan, 1500);
+  }
+})();
+</script>
 </head>
 <body>
 <x-dc>
@@ -42,12 +81,31 @@
   @keyframes cyPop{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
   @keyframes cyPulse{0%,100%{opacity:.45}50%{opacity:1}}
   @keyframes cyDrift{0%{transform:scale(1.06) translate3d(0,0,0)}100%{transform:scale(1.16) translate3d(0,-2%,0)}}
+  .hero-media{position:absolute;inset:0;overflow:hidden;background:#0B0B0C}
+  .hero-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 42%;animation:cyDrift 26s ease-in-out infinite alternate}
+  .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 38%;pointer-events:none}
+  @media (min-width:768px){
+    .hero-fallback{object-position:50% 36%}
+    .hero-video{object-position:50% 32%}
+  }
+  @media (min-width:1100px){
+    .hero-fallback,.hero-video{object-position:50% 28%}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hero-fallback{animation:none}
+    .hero-video{display:none}
+  }
 </style>
 </helmet>
 <div style="min-height:100%; background:#0B0B0C; color:#F0E6D2; font-family:'Barlow',system-ui,sans-serif; overflow-x:hidden">
 
   <section style="position:relative; height:100svh; min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:clamp(28px,5vh,52px) clamp(20px,6vw,40px) clamp(24px,4vh,44px); overflow:hidden; text-align:center">
-    <div style="position:absolute; inset:0; background-image:url('hero-cypher.jpg'); background-size:cover; background-position:50% 42%; animation:cyDrift 26s ease-in-out infinite alternate"></div>
+    <div class="hero-media" aria-hidden="true">
+      <img class="hero-fallback" src="hero-cypher.jpg" alt="" decoding="async" />
+      <video class="hero-video" id="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="hero-cypher.jpg">
+        <source src="hero-cypher.mp4" type="video/mp4" />
+      </video>
+    </div>
     <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(11,11,12,.6) 0%, rgba(11,11,12,.26) 34%, rgba(11,11,12,.58) 74%, rgba(11,11,12,.92) 100%)"></div>
     <div style="position:absolute; inset:0; background:radial-gradient(78% 52% at 50% 52%, rgba(11,11,12,0) 0%, rgba(11,11,12,.6) 100%)"></div>
     <div style="position:absolute; inset:0; background:radial-gradient(105% 52% at 50% 106%, rgba(255,91,35,.26) 0%, rgba(255,91,35,0) 60%)"></div>
@@ -80,7 +138,7 @@
 
     <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:clamp(16px,2.8vh,24px); width:100%; max-width:440px; flex:0 0 auto; margin-top:clamp(20px,3.5vh,36px)">
       <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px">
-        <span style="display:inline-flex; align-items:center; border:1px solid rgba(240,230,210,.28); color:rgba(240,230,210,.8); padding:7px 14px; border-radius:999px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Oct 2nd · 6PM</span>
+        <span style="display:inline-flex; align-items:center; border:1px solid rgba(240,230,210,.28); color:rgba(240,230,210,.8); padding:7px 14px; border-radius:999px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Oct 16th · 6PM</span>
         <span style="display:inline-flex; align-items:center; background:#FF5B23; color:#0B0B0C; padding:7px 14px; border-radius:999px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase">Free</span>
       </div>
       <button type="button" onClick="{{ openForm }}" style="width:100%; min-height:66px; padding:0 34px; background:linear-gradient(180deg,#FFB273 0%,#FF7C4E 42%,#FF4A0F 100%); color:#0B0B0C; border:none; border-radius:999px; font-family:'Anton',sans-serif; font-size:22px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; box-shadow:0 10px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.35); transition:transform .18s cubic-bezier(.22,1,.36,1), filter .18s ease" style-hover="filter:brightness(1.06); transform:scale(1.03)" style-active="transform:scale(.985)">Count me in</button>
@@ -309,7 +367,7 @@ class Component extends DCLogic {
       submitLabel: s.submitting ? 'Counting you in…' : 'Count me in',
       submitOpacity: s.submitting ? 0.7 : 1,
       showCount: s.count != null && s.count >= threshold,
-      countLabel: 'Fri Oct 2 · ' + displayCount + ' dancers signed up'
+      countLabel: 'Fri Oct 16 · ' + displayCount + ' dancers signed up'
     };
   }
 }
